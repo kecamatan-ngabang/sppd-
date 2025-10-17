@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator SPPD Kecamatan Ngabang</title>
+
+<style>
+  @page { size: A4 portrait; margin: 2.5cm; }
+  body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 30px; }
+  .container {
+    max-width: 900px; margin: auto; background: #fff;
+    border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 25px 40px;
+  }
+  h2 { text-align: center; color: #0a3c85; font-size: 20px; margin-bottom: 20px; }
+  label { font-weight: bold; display: block; margin-top: 10px; }
+  input, textarea {
+    width: 100%; padding: 6px 10px; border: 1px solid #bbb;
+    border-radius: 5px; margin-top: 5px; font-size: 12pt;
+  }
+  button {
+    margin-top: 12px; padding: 8px 18px; border: none;
+    border-radius: 6px; background: #0a3c85; color: white; cursor: pointer;
+  }
+  button:hover { background: #052c6b; }
+  #preview { background: white; border: 1px solid #ccc; padding: 50px; margin-top: 30px; }
+  .kop { text-align: center; position: relative; border-bottom: 3px solid #000; padding-bottom: 6px; }
+  .kop img { position: absolute; top: 0; left: 35px; width: 90px; height: 90px; }
+  .kop h2 { font-size: 14pt; margin: 0; font-weight: bold; }
+  .kop h1 { font-size: 15pt; margin: 0; font-weight: bold; }
+  .kop p { font-size: 11pt; margin: 0; }
+  .kop .ngabang { font-weight: bold; letter-spacing: 4px; font-size: 11pt; }
+  .judul { text-align: center; margin-top: 20px; }
+  .judul h3 { text-decoration: underline; font-size: 14pt; font-weight: bold; margin: 0; }
+  .judul p { font-size: 11pt; margin: 0; }
+  .tanda-tangan { text-align: right; margin-top: 40px; }
+  .tanda-tangan p { margin: 3px; font-size: 12pt; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>🧾 Generator Surat Perintah Tugas<br>Kecamatan Ngabang</h2>
+
+  <label>Nomor Surat:</label>
+  <input type="text" id="nomor" placeholder="Contoh: 094">
+  <label>Tahun:</label>
+  <input type="text" id="tahun" placeholder="Contoh: 2025">
+  <label>Dasar Surat:</label>
+  <textarea id="dasar" rows="2">Peraturan Bupati Landak Nomor 1 Tahun 2020 tentang Perjalanan Dinas Dalam Negeri Atas beban Anggaran Pendapatan dan Belanja Daerah Kabupaten Landak</textarea>
+  <label>Keperluan:</label>
+  <input type="text" id="keperluan" placeholder="Contoh: Menghadiri kegiatan pelatihan aparatur desa di Landak">
+  <label>Tanggal Penetapan:</label>
+  <input type="date" id="tanggal">
+
+  <h3>Daftar Petugas</h3>
+  <div id="petugasContainer"></div>
+  <button type="button" onclick="tambahPetugas()">+ Tambah Petugas</button>
+
+  <br><br>
+  <button onclick="generatePreview()">📄 Tampilkan Surat</button>
+  <div id="preview"></div>
+
+  <div id="exportButtons" style="display:none; text-align:center; margin-top:20px;">
+    <button onclick="exportPDF()">⬇️ Unduh PDF</button>
+    <button onclick="exportWord()">⬇️ Unduh Word</button>
+  </div>
+</div>
+
+<!-- ==== SCRIPT === -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+let petugasCount = 0;
+
+function tambahPetugas() {
+  petugasCount++;
+  const div = document.createElement("div");
+  div.classList.add("petugas");
+  div.style.borderBottom = "1px dashed #ccc";
+  div.style.marginBottom = "10px";
+  div.innerHTML = `
+    <label>Petugas ${petugasCount}</label>
+    <input type="text" placeholder="Nama Lengkap" class="nama">
+    <input type="text" placeholder="Pangkat/Gol" class="pangkat">
+    <input type="text" placeholder="NIP" class="nip">
+    <input type="text" placeholder="Jabatan" class="jabatan">
+  `;
+  document.getElementById("petugasContainer").appendChild(div);
+}
+
+function generatePreview() {
+  const nomor = document.getElementById("nomor").value || "-";
+  const tahun = document.getElementById("tahun").value || "-";
+  const dasar = document.getElementById("dasar").value || "-";
+  const keperluan = document.getElementById("keperluan").value || "-";
+  const tanggalInput = document.getElementById("tanggal").value;
+  const tanggal = tanggalInput ? new Date(tanggalInput) : new Date();
+  const tglFormat = tanggal.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+
+  let petugasHTML = "";
+  const petugas = document.querySelectorAll(".petugas");
+  petugas.forEach((div, i) => {
+    const nama = div.querySelector(".nama").value || "-";
+    const pangkat = div.querySelector(".pangkat").value || "-";
+    const nip = div.querySelector(".nip").value || "-";
+    const jabatan = div.querySelector(".jabatan").value || "-";
+    petugasHTML += `
+      <p style="margin-left:30px;">
+        ${i + 1}. Nama: ${nama}<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Pangkat/Gol: ${pangkat}<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;NIP: ${nip}<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Jabatan: ${jabatan}
+      </p>`;
+  });
+
+  document.getElementById("preview").innerHTML = `
+    <div class="kop">
+      <img src="logo.png" alt="Logo Kabupaten Landak">
+      <h2>PEMERINTAH KABUPATEN LANDAK</h2>
+      <h1>KECAMATAN NGABANG</h1>
+      <p><i>Alamat : Jln. Gusti Affandi Ranie (Kode Pos 78357)</i></p>
+      <p class="ngabang">N G A B A N G</p>
+    </div>
+    <div class="judul">
+      <h3>SURAT PERINTAH TUGAS</h3>
+      <p>Nomor : ${nomor} / NGB / ${tahun}</p>
+    </div>
+    <p><b>Dasar:</b> ${dasar}</p>
+    <p style="text-align:center; font-weight:bold; margin-top:25px;">MENUGASKAN</p>
+    <p><b>Kepada :</b></p>
+    ${petugasHTML}
+    <p><b>Untuk :</b> ${keperluan}</p>
+    <div class="tanda-tangan">
+      <p>Ditetapkan di Ngabang</p>
+      <p>Pada tanggal ${tglFormat}</p>
+      <p><b>CAMAT NGABANG</b></p><br><br><br>
+      <p><b>YULLY NOMENSEN, S.STP</b></p>
+      <p>Pembina (IV/a)</p>
+      <p>NIP. 19840724 200212 1 001</p>
+    </div>`;
+  document.getElementById("exportButtons").style.display = "block";
+}
+
+// === Ekspor PDF ===
+async function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const element = document.getElementById("preview");
+  const pdf = new jsPDF("p", "mm", "a4");
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+  const imgWidth = 190;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+  pdf.save("Surat_Perintah_Tugas_Ngabang.pdf");
+}
+
+// === Ekspor Word ===
+function exportWord() {
+  const content = document.getElementById("preview").innerHTML;
+  const fullHTML = `
+  <html xmlns:o='urn:schemas-microsoft-com:office:office'
+  xmlns:w='urn:schemas-microsoft-com:office:word'
+  xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset='utf-8'><title>SPPD Ngabang</title></head>
+  <body>${content}</body></html>`;
+  const blob = htmlDocx.asBlob(fullHTML);
+  saveAs(blob, "Surat_Perintah_Tugas_Ngabang.docx");
+}
+</script>
+</body>
+</html>

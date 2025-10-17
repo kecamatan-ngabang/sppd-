@@ -25,17 +25,51 @@
   }
   button:hover { background: #052c6b; }
   #preview { background: white; border: 1px solid #ccc; padding: 50px; margin-top: 30px; }
-  .kop { text-align: center; position: relative; border-bottom: 3px solid #000; padding-bottom: 6px; }
-  .kop img { position: absolute; top: 0; left: 35px; width: 90px; height: 90px; }
-  .kop h2 { font-size: 14pt; margin: 0; font-weight: bold; }
-  .kop h1 { font-size: 15pt; margin: 0; font-weight: bold; }
+
+  /* --- Style Kop Surat --- */
+  .kop {
+    text-align: center; position: relative;
+    padding-bottom: 10px; margin-bottom: 10px;
+    border: none;
+  }
+  .kop img {
+    position: absolute;
+    top: 10px;        /* jarak logo dari atas */
+    left: 15px;
+    width: 70px;      /* lebar logo */
+    height: 90px;     /* tinggi logo */
+  }
+  .kop h2 { font-size: 14pt; margin: 0; font-weight: bold; margin-top: 30px; }
+  .kop h1 { font-size: 16pt; margin: 0; font-weight: bold; }
   .kop p { font-size: 11pt; margin: 0; }
-  .kop .ngabang { font-weight: bold; letter-spacing: 4px; font-size: 11pt; }
+  .kop .ngabang { font-weight: bold; letter-spacing: 4px; font-size: 11pt; margin-bottom: 8px; }
+
+  .kop-line {
+    border-top: 1.5pt solid black;
+    border-bottom: 3.5pt solid black;
+    margin-top: 8px;
+    width: 93%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .judul { text-align: center; margin-top: 20px; }
-  .judul h3 { text-decoration: underline; font-size: 14pt; font-weight: bold; margin: 0; }
+  .judul h3 {
+    font-size: 14pt; font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-bottom: 5px;
+  }
   .judul p { font-size: 11pt; margin: 0; }
-  .tanda-tangan { text-align: right; margin-top: 40px; }
+
+  .isi-surat { margin-top: 25px; font-size: 12pt; line-height: 1.6; }
+  .isi-surat table { border-collapse: collapse; width: 100%; }
+  .isi-surat td { vertical-align: top; padding: 2px 4px; }
+
+  .tengah { text-align: center; margin: 30px 0 15px 0; }
+  .tanda-tangan { text-align: right; margin-top: 50px; }
   .tanda-tangan p { margin: 3px; font-size: 12pt; }
+  .underline { text-decoration: underline; text-underline-offset: 2px; }
 </style>
 </head>
 
@@ -48,7 +82,7 @@
   <label>Tahun:</label>
   <input type="text" id="tahun" placeholder="Contoh: 2025">
   <label>Dasar Surat:</label>
-  <textarea id="dasar" rows="2">Peraturan Bupati Landak Nomor 1 Tahun 2020 tentang Perjalanan Dinas Dalam Negeri Atas beban Anggaran Pendapatan dan Belanja Daerah Kabupaten Landak</textarea>
+  <textarea id="dasar" rows="3">Peraturan Bupati Landak Nomor 1 Tahun 2020 tentang Perjalanan Dinas Dalam Negeri Atas beban Anggaran Pendapatan dan Belanja Daerah Kabupaten Landak</textarea>
   <label>Keperluan:</label>
   <input type="text" id="keperluan" placeholder="Contoh: Menghadiri kegiatan pelatihan aparatur desa di Landak">
   <label>Tanggal Penetapan:</label>
@@ -60,19 +94,17 @@
 
   <br><br>
   <button onclick="generatePreview()">📄 Tampilkan Surat</button>
+
   <div id="preview"></div>
 
   <div id="exportButtons" style="display:none; text-align:center; margin-top:20px;">
     <button onclick="exportPDF()">⬇️ Unduh PDF</button>
-    <button onclick="exportWord()">⬇️ Unduh Word</button>
   </div>
 </div>
 
-<!-- ==== SCRIPT === -->
+<!-- Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <script>
 let petugasCount = 0;
@@ -110,12 +142,12 @@ function generatePreview() {
     const nip = div.querySelector(".nip").value || "-";
     const jabatan = div.querySelector(".jabatan").value || "-";
     petugasHTML += `
-      <p style="margin-left:30px;">
-        ${i + 1}. Nama: ${nama}<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Pangkat/Gol: ${pangkat}<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;NIP: ${nip}<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Jabatan: ${jabatan}
-      </p>`;
+      <table style="margin-left: 50px;">
+        <tr><td width="20px">${i + 1}.</td><td>Nama</td><td width="10px">:</td><td>${nama}</td></tr>
+        <tr><td></td><td>Pangkat/Gol</td><td>:</td><td>${pangkat}</td></tr>
+        <tr><td></td><td>NIP</td><td>:</td><td>${nip}</td></tr>
+        <tr><td></td><td>Jabatan</td><td>:</td><td>${jabatan}</td></tr>
+      </table><br>`;
   });
 
   document.getElementById("preview").innerHTML = `
@@ -123,54 +155,100 @@ function generatePreview() {
       <img src="logo.png" alt="Logo Kabupaten Landak">
       <h2>PEMERINTAH KABUPATEN LANDAK</h2>
       <h1>KECAMATAN NGABANG</h1>
-      <p><i>Alamat : Jln. Gusti Affandi Ranie (Kode Pos 78357)</i></p>
+      <p><i>Alamat : Jl. Gusti A. Rani Jalur II, Ngabang, Landak, Kalimantan Barat </i></p>
+      <p><i>Laman : www.kecamatanngabang.landakkab.go.id</i></p>
+      <p><i>Kode Pos 79357</i></p>
+
       <p class="ngabang">N G A B A N G</p>
+      <div class="kop-line"></div>
     </div>
+
     <div class="judul">
-      <h3>SURAT PERINTAH TUGAS</h3>
-      <p>Nomor : ${nomor} / NGB / ${tahun}</p>
+      <h3 class="underline">SURAT PERINTAH TUGAS</h3>
+      <p>Nomor : ${nomor} / ${tahun}</p>
     </div>
-    <p><b>Dasar:</b> ${dasar}</p>
-    <p style="text-align:center; font-weight:bold; margin-top:25px;">MENUGASKAN</p>
-    <p><b>Kepada :</b></p>
-    ${petugasHTML}
-    <p><b>Untuk :</b> ${keperluan}</p>
+
+    <div class="isi-surat">
+      <table>
+        <tr>
+          <td width="70px"><b>Dasar</b></td>
+          <td width="10px">:</td>
+          <td>${dasar}</td>
+        </tr>
+      </table>
+
+      <div class="tengah">MENUGASKAN</div>
+
+      <table>
+        <tr>
+          <td width="70px"><b>Kepada</b></td>
+          <td width="10px">:</td>
+          <td></td>
+        </tr>
+      </table>
+      ${petugasHTML}
+      <table>
+        <tr>
+          <td width="70px"><b>Keperluan</b></td>
+          <td width="10px">:</td>
+          <td>${keperluan}</td>
+        </tr>
+      </table>
+    </div>
+
     <div class="tanda-tangan">
       <p>Ditetapkan di Ngabang</p>
       <p>Pada tanggal ${tglFormat}</p>
       <p><b>CAMAT NGABANG</b></p><br><br><br>
-      <p><b>YULLY NOMENSEN, S.STP</b></p>
-      <p>Pembina (IV/a)</p>
+      <p><b class="underline">YULLY NOMENSEN, S.STP</b></p>
+      <p>Pembina (IV/b)</p>
       <p>NIP. 19840724 200212 1 001</p>
     </div>`;
   document.getElementById("exportButtons").style.display = "block";
 }
 
-// === Ekspor PDF ===
+
 async function exportPDF() {
   const { jsPDF } = window.jspdf;
   const element = document.getElementById("preview");
+
+  // 🔧 Render elemen dengan kualitas cukup tinggi tapi hemat ukuran
+  const canvas = await html2canvas(element, {
+    scale: 1.5,          // dari 3 → turun supaya ukuran kecil tapi tetap jelas
+    useCORS: true,
+    scrollY: 0,
+    scrollX: 0,
+    windowWidth: element.scrollWidth,
+    windowHeight: element.scrollHeight
+  });
+
+  // 🔧 Ubah kanvas ke gambar PNG
+  const imgData = canvas.toDataURL("image/jpeg", 0.8); // 0.8 = kompresi 80%
   const pdf = new jsPDF("p", "mm", "a4");
-  const canvas = await html2canvas(element, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-  const imgWidth = 190;
+
+  const pageWidth = 210;  // lebar A4 mm
+  const pageHeight = 297; // tinggi A4 mm
+  const imgWidth = pageWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  // 🔧 Tambahkan halaman pertama
+  pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
+  heightLeft -= pageHeight;
+
+  // 🔧 Bagi otomatis jika melebihi 1 halaman
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
+    heightLeft -= pageHeight;
+  }
+
   pdf.save("Surat_Perintah_Tugas_Ngabang.pdf");
 }
-
-// === Ekspor Word ===
-function exportWord() {
-  const content = document.getElementById("preview").innerHTML;
-  const fullHTML = `
-  <html xmlns:o='urn:schemas-microsoft-com:office:office'
-  xmlns:w='urn:schemas-microsoft-com:office:word'
-  xmlns='http://www.w3.org/TR/REC-html40'>
-  <head><meta charset='utf-8'><title>SPPD Ngabang</title></head>
-  <body>${content}</body></html>`;
-  const blob = htmlDocx.asBlob(fullHTML);
-  saveAs(blob, "Surat_Perintah_Tugas_Ngabang.docx");
-}
 </script>
+
 </body>
 </html>

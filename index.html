@@ -4,11 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generator SPPD Kecamatan Ngabang</title>
+ <!-- 🏛️ Favicon Pemerintah Kabupaten Landak -->
 <link rel="icon" type="image/png" href="faviicon.png">
 
-
 <style>
-  
+  /* Margin atas 2cm untuk surat & PDF */
+#preview {
+  margin-top: 16px; /* 2 cm = ±56px */
+  padding-top: 56px;
+}
+
   @page { size: A4 portrait; margin: 2.5cm; }
   body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 30px; }
   .container {
@@ -93,17 +98,19 @@
   width: 100px; /* label tetap */
 }
 
-/* kolom tanda titik dua */
+/* Kolom titik dua */
 .petugas-table td:nth-child(3) {
   width: 10px;
   text-align: left;
+  padding-right: 5px; /* beri ruang kecil */
 }
 
-/* kolom isian hasil input: 1.5cm dari tanda titik dua */
+/* Kolom isi (setelah :) */
 .petugas-table td:nth-child(4) {
-  padding-left: 43px; /* 1.5 cm ≈ 43px */
+  padding-left: 10px; /* 1 spasi = 10px */
   width: calc(100% - 160px);
 }
+
 
 
   .tengah { text-align: center; margin: 30px 0 15px 0; }
@@ -135,10 +142,10 @@
 
   <h3>Daftar Petugas</h3>
   <div id="petugasContainer"></div>
-  <button type="button" onclick="tambahPetugas()">Tambah Petugas</button>
+  <button type="button" onclick="tambahPetugas()">+ Tambah Petugas</button>
 
   <br><br>
-  <button onclick="generatePreview()">Tampilkan Surat</button>
+  <button onclick="generatePreview()">📄 Tampilkan Surat</button>
 
   <div id="preview"></div>
 
@@ -279,6 +286,8 @@ async function exportPDF() {
     windowHeight: element.scrollHeight
   });
 
+  const marginTopMM = 0; // 2 cm
+
   // 🔧 Ubah kanvas ke gambar PNG
   const imgData = canvas.toDataURL("image/jpeg", 0.8); // 0.8 = kompresi 80%
   const pdf = new jsPDF("p", "mm", "a4");
@@ -292,16 +301,17 @@ async function exportPDF() {
   let position = 0;
 
   // 🔧 Tambahkan halaman pertama
-  pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
+ pdf.addImage(imgData, "JPEG", 0, marginTopMM, imgWidth, imgHeight, "", "FAST");
   heightLeft -= pageHeight;
 
   // 🔧 Bagi otomatis jika melebihi 1 halaman
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
-    heightLeft -= pageHeight;
-  }
+while (heightLeft > 0) {
+  position = heightLeft - imgHeight + marginTopMM;
+  pdf.addPage();
+  pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
+  heightLeft -= pageHeight;
+}
+
 
   pdf.save("Surat_Perintah_Tugas_Ngabang.pdf");
 }
@@ -309,5 +319,3 @@ async function exportPDF() {
 
 </body>
 </html>
-
-

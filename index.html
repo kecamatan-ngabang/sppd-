@@ -4,23 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generator SPPD Kecamatan Ngabang</title>
+
  <!-- 🏛️ Favicon Pemerintah Kabupaten Landak -->
 <link rel="icon" type="image/png" href="faviicon.png">
 
 <style>
   /* Margin atas 2cm untuk surat & PDF */
+
 #preview {
-  margin-top: 16px; /* 2 cm = ±56px */
-  padding-top: 16px;
+  background: white;
+  border: none;         /* 🔥 hilangkan garis */
+  padding: 50px;
+  margin-top: 30px;
 }
+
 
   @page { size: A4 portrait; margin: 2cm; }
   body { font-family: 'Times New Roman', Times, serif, sans-serif; background: #f5f7fa; margin: 0; padding: 30px; }
-  .container {
-    max-width: 900px; margin: auto; background: #fff;
-    border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    padding: 25px 40px;
-  }
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  border: none;         /* 🔥 hilangkan border & shadow */
+  box-shadow: none;
+  padding: 25px 40px;
+}
+
   h2 { text-align: center; color: #0a3c85; font-size: 20px; margin-bottom: 20px; }
   label { font-weight: bold; display: block; margin-top: 10px; }
   input, textarea {
@@ -52,14 +61,34 @@
   .kop p { font-size: 11pt; margin: 0; }
   .kop .ngabang { font-weight: bold; letter-spacing: 4px; font-size: 11pt; margin-bottom: 8px; }
 
-  .kop-line {
-    border-top: 1pt solid black;
-    border-bottom: 3.5pt solid black;
-    margin-top: 8px;
-    width: 93%;
-    margin-left: auto;
-    margin-right: auto;
-  }
+.kop-line {
+  position: relative;
+  width: 93%;
+  margin: 8px auto 0 auto;
+  height: 7pt; /* total tinggi area dua garis */
+  border: none;
+}
+
+/* Garis atas tipis */
+.kop-line::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 1.5pt solid black;
+}
+
+/* Garis bawah tebal, berjarak 1pt dari garis atas */
+.kop-line::after {
+  content: "";
+  position: absolute;
+  top: 2.5pt; /* jarak 1pt dari garis atas */
+  left: 0;
+  right: 0;
+  border-top: 3.5pt solid black;
+}
+
 
   .judul { text-align: center; margin-top: 20px; }
   .judul h3 {
@@ -139,7 +168,7 @@
 
 <body>
 <div class="container">
-  <h2>Surat  Perintah Tugas<br>Kecamatan Ngabang</h2>
+  <h>Surat  Perintah Tugas<br>Kecamatan Ngabang</h2>
 
   <label>Nomor Surat:</label>
   <input type="text" id="nomor" placeholder="Contoh: 094">
@@ -289,9 +318,9 @@ async function exportPDF() {
   const { jsPDF } = window.jspdf;
   const element = document.getElementById("preview");
 
-  // 🔧 Render elemen dengan kualitas cukup tinggi tapi hemat ukuran
+  // Render elemen dengan kualitas tinggi
   const canvas = await html2canvas(element, {
-    scale: 1.5,          // dari 3 → turun supaya ukuran kecil tapi tetap jelas
+    scale: 2,
     useCORS: true,
     scrollY: 0,
     scrollX: 0,
@@ -299,35 +328,36 @@ async function exportPDF() {
     windowHeight: element.scrollHeight
   });
 
-  const marginTopMM = 0; // 2 cm
-
-  // 🔧 Ubah kanvas ke gambar PNG
-  const imgData = canvas.toDataURL("image/jpeg", 0.8); // 0.8 = kompresi 80%
+  // Ubah hasil render ke gambar JPEG (kompres 85%)
+  const imgData = canvas.toDataURL("image/jpeg", 0.85);
   const pdf = new jsPDF("p", "mm", "a4");
 
-  const pageWidth = 210;  // lebar A4 mm
-  const pageHeight = 297; // tinggi A4 mm
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  // Tentukan ukuran A4 dan margin agar tidak menempel tepi
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const marginLeft = 15;  // margin kiri 1,5 cm
+  const marginRight = 15; // margin kanan 1,5 cm
+  const usableWidth = pageWidth - marginLeft - marginRight;
+  const imgHeight = (canvas.height * usableWidth) / canvas.width;
 
   let heightLeft = imgHeight;
-  let position = 0;
+  let position = 10; // jarak dari atas halaman
 
-  // 🔧 Tambahkan halaman pertama
- pdf.addImage(imgData, "JPEG", 0, marginTopMM, imgWidth, imgHeight, "", "FAST");
+  // Halaman pertama
+  pdf.addImage(imgData, "JPEG", marginLeft, position, usableWidth, imgHeight, "", "FAST");
   heightLeft -= pageHeight;
 
-  // 🔧 Bagi otomatis jika melebihi 1 halaman
-while (heightLeft > 0) {
-  position = heightLeft - imgHeight + marginTopMM;
-  pdf.addPage();
-  pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, "", "FAST");
-  heightLeft -= pageHeight;
-}
-
+  // Tambahkan halaman berikutnya jika isi lebih dari satu halaman
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight + 10;
+    pdf.addPage();
+    pdf.addImage(imgData, "JPEG", marginLeft, position, usableWidth, imgHeight, "", "FAST");
+    heightLeft -= pageHeight;
+  }
 
   pdf.save("Surat_Perintah_Tugas.pdf");
 }
+
 </script>
 
 </body>

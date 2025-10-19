@@ -9,6 +9,34 @@
 <link rel="icon" type="image/png" href="faviicon.png">
 
 <style>
+  body {
+  font-family: Arial, sans-serif;
+  background: #ffffff; /* ubah jadi putih polos */
+  margin: 0;
+  padding: 30px;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 25px 40px;
+}
+
+#preview {
+  background: white;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 50px;
+  margin-top: 30px;
+}
+
   /* Margin atas 2cm untuk surat & PDF */
 
 #preview {
@@ -63,7 +91,7 @@
 
 .kop-line {
   position: relative;
-  width: 93%;
+  width: 100%;
   margin: 8px auto 0 auto;
   height: 7pt; /* total tinggi area dua garis */
   border: none;
@@ -328,8 +356,8 @@ async function exportPDF() {
     windowHeight: element.scrollHeight
   });
 
-  // Ubah hasil render ke gambar JPEG (kompres 85%)
-  const imgData = canvas.toDataURL("image/jpeg", 0.85);
+  // Ubah hasil render ke gambar JPEG (kompres 95%)
+  const imgData = canvas.toDataURL("image/jpeg", 0.95);
   const pdf = new jsPDF("p", "mm", "a4");
 
   // Tentukan ukuran A4 dan margin agar tidak menempel tepi

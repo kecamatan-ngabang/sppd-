@@ -15,7 +15,7 @@
   background: white;
   border: none;         /* 🔥 hilangkan garis */
   padding: 50px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 
@@ -168,10 +168,10 @@
 
 <body>
 <div class="container">
-  <h2>Surat  Perintah Tugas<br>Kecamatan Ngabang</h2>
+  <h1><center style="color:rgb(6, 6, 31); font-family: 'Colonna MT';">Surat  Perintah Tugas<br>Kecamatan Ngabang</center></h1>
 
   <label>Nomor Surat:</label>
-  <input type="text" id="nomor" placeholder="Contoh: 094">
+  <input type="text" id="nomor" placeholder="Contoh: 094/SPT/NGB">
   <label>Tahun:</label>
   <input type="text" id="tahun" placeholder="Contoh: 2025">
   <label>Dasar Surat:</label>
@@ -181,7 +181,7 @@
   <label>Tanggal Penetapan:</label>
   <input type="date" id="tanggal">
 
-  <h3>Daftar Petugas</h3>
+  <h1 style="text-align:center; font-family:'cascadia code';">Daftar Petugas</h1>
   <div id="petugasContainer"></div>
   <button type="button" onclick="tambahPetugas()">Tambah Petugas</button>
 
@@ -258,7 +258,7 @@ function generatePreview() {
   document.getElementById("preview").innerHTML = `
     <div class="kop">
       <img src="logo.png" alt="Logo Kabupaten Landak">
-      <h2>PEMERINTAH KABUPATEN LANDAK</h2>
+      <h1>PEMERINTAH KABUPATEN LANDAK</h1>
       <h1>KECAMATAN NGABANG</h1>
       <p><i>Alamat : Jl. Gusti A. Rani Jalur II, Ngabang, Landak, Kalimantan Barat </i></p>
       <p><i>Laman : https://kecamatanngabang.landakkab.go.id</i></p>
@@ -362,6 +362,5 @@ async function exportPDF() {
 
 </body>
 </html>
-
 
 
